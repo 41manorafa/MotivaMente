@@ -2,7 +2,7 @@
 
 import { useState, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
-import { db } from "app/firebases"; // Caminho corrigido!
+import { db } from "@/firebases"; // Caminho corrigido!
 import { collection, doc, setDoc } from "firebase/firestore";
 
 export default function GerenciarUsuarioPage() {

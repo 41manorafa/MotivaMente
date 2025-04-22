@@ -3,6 +3,8 @@
 import { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { db } from "@/firebases"; // Ajuste o caminho conforme sua estrutura
+import { collection, query, where, getDocs } from "firebase/firestore";
 
 export default function LoginPage() {
   const [email, setEmail] = useState<string>('');
@@ -26,7 +28,7 @@ export default function LoginPage() {
     e.currentTarget.style.backgroundColor = hover ? "#e67300" : "#F58220";
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setErro('');
     setLoading(true);
@@ -34,13 +36,27 @@ export default function LoginPage() {
     const usuario = email.trim().toLowerCase();
     const senhaDigitada = senha.trim();
 
-    if (usuario === "cliente" && senhaDigitada === "123") {
-      router.push("/cliente");
-    } else {
-      setErro("Usuário ou senha inválidos.");
-    }
+    try {
+      const usuariosRef = collection(db, "usuarios");
+      const q = query(usuariosRef, where("email", "==", usuario));
+      const querySnapshot = await getDocs(q);
 
-    setLoading(false);
+      if (!querySnapshot.empty) {
+        const userData = querySnapshot.docs[0].data();
+
+        if (userData.senha === senhaDigitada) {
+          router.push("/cliente");
+          return;
+        }
+      }
+
+      setErro("Usuário ou senha inválidos.");
+    } catch (error) {
+      console.error("Erro ao buscar usuário:", error);
+      setErro("Erro na autenticação. Tente novamente.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
