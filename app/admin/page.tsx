@@ -87,7 +87,7 @@ export default function LoginPage() {
       {showLogo && (
         <Image
           src="/logo.png"
-          alt="Logo MotivaMente"
+          alt="logo MotivaMente"
           width={400}
           height={400}
           style={estiloLogo()}
