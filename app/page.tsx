@@ -27,7 +27,7 @@ export default function Home() {
         backgroundRepeat: "no-repeat"
       }}>
         <img 
-          src="/Logo.png" 
+          src="/logo.png" 
           alt="Logo MotivaMente" 
           style={{ 
             width: "350px",
