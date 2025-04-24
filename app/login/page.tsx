@@ -3,8 +3,8 @@
 import { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { db } from "@/firebases"; // Ajuste o caminho conforme sua estrutura
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { auth } from "@/firebases"; // Importe a instância do auth
+import { signInWithEmailAndPassword } from "firebase/auth"; // Importe a função de login
 
 export default function LoginPage() {
   const [email, setEmail] = useState<string>('');
@@ -33,27 +33,24 @@ export default function LoginPage() {
     setErro('');
     setLoading(true);
 
-    const usuario = email.trim().toLowerCase();
+    const usuario = email.trim(); // Não precisa converter para lowercase para o Auth
     const senhaDigitada = senha.trim();
 
     try {
-      const usuariosRef = collection(db, "usuarios");
-      const q = query(usuariosRef, where("email", "==", usuario));
-      const querySnapshot = await getDocs(q);
-
-      if (!querySnapshot.empty) {
-        const userData = querySnapshot.docs[0].data();
-
-        if (userData.senha === senhaDigitada) {
-          router.push("/cliente");
-          return;
-        }
+      // Utilize signInWithEmailAndPassword para autenticar com o Firebase Auth
+      const userCredential = await signInWithEmailAndPassword(auth, usuario, senhaDigitada);
+      const user = userCredential.user;
+      console.log("Usuário autenticado:", user);
+      router.push("/admin"); // Redireciona para /admin após o login
+    } catch (error: any) {
+      console.error("Erro ao fazer login:", error);
+      if (error.code === 'auth/user-not-found') {
+        setErro("Usuário não encontrado.");
+      } else if (error.code === 'auth/wrong-password') {
+        setErro("Senha incorreta.");
+      } else {
+        setErro("Erro na autenticação. Tente novamente.");
       }
-
-      setErro("Usuário ou senha inválidos.");
-    } catch (error) {
-      console.error("Erro ao buscar usuário:", error);
-      setErro("Erro na autenticação. Tente novamente.");
     } finally {
       setLoading(false);
     }
