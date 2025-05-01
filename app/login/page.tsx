@@ -41,7 +41,10 @@ export default function LoginPage() {
       const userCredential = await signInWithEmailAndPassword(auth, usuario, senhaDigitada);
       const user = userCredential.user;
 
+      console.log("Usuário autenticado:", user.email, "UID:", user.uid); // ✅ Log do UID
+
       const docRef = doc(db, "usuarios", user.uid);
+      console.log("Referência do documento:", docRef.path); // ✅ Log do caminho do documento
       const docSnap = await getDoc(docRef);
 
       if (!docSnap.exists()) {
@@ -51,7 +54,7 @@ export default function LoginPage() {
       const dados = docSnap.data();
       const tipo = dados?.tipo?.toLowerCase(); // ✅ Corrigido aqui
 
-      console.log("Usuário autenticado:", user.email, "Tipo:", tipo);
+      console.log("Tipo de usuário:", tipo);
 
       if (tipo === "admin") {
         router.push("/admin");
@@ -102,10 +105,10 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit}>
           <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
             <div style={{ height: "100%" }}>
-              <img 
-                src="/usuario_logo.png" 
-                alt="Usuário" 
-                style={{ width: "60px", height: "60px", objectFit: "cover", marginRight: "10px" }} 
+              <img
+                src="/usuario_logo.png"
+                alt="Usuário"
+                style={{ width: "60px", height: "60px", objectFit: "cover", marginRight: "10px" }}
               />
             </div>
             <input
@@ -119,10 +122,10 @@ export default function LoginPage() {
 
           <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
             <div style={{ height: "100%" }}>
-              <img 
-                src="/cadeado.png" 
-                alt="Senha" 
-                style={{ width: "60px", height: "60px", objectFit: "cover", marginRight: "10px" }} 
+              <img
+                src="/cadeado.png"
+                alt="Senha"
+                style={{ width: "60px", height: "60px", objectFit: "cover", marginRight: "10px" }}
               />
             </div>
             <input
