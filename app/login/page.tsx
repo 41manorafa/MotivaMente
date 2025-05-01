@@ -3,8 +3,9 @@
 import { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { auth } from "@/firebases"; // Importe a instância do auth
-import { signInWithEmailAndPassword } from "firebase/auth"; // Importe a função de login
+import { auth, db } from "@/firebases";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
 
 export default function LoginPage() {
   const [email, setEmail] = useState<string>('');
@@ -33,15 +34,33 @@ export default function LoginPage() {
     setErro('');
     setLoading(true);
 
-    const usuario = email.trim(); // Não precisa converter para lowercase para o Auth
+    const usuario = email.trim();
     const senhaDigitada = senha.trim();
 
     try {
-      // Utilize signInWithEmailAndPassword para autenticar com o Firebase Auth
       const userCredential = await signInWithEmailAndPassword(auth, usuario, senhaDigitada);
       const user = userCredential.user;
-      console.log("Usuário autenticado:", user);
-      router.push("/admin"); // Redireciona para /admin após o login
+
+      const docRef = doc(db, "usuarios", user.uid);
+      const docSnap = await getDoc(docRef);
+
+      if (!docSnap.exists()) {
+        throw new Error("Usuário não encontrado no banco de dados.");
+      }
+
+      const dados = docSnap.data();
+      const tipo = dados?.tipo?.toLowerCase(); // ✅ Corrigido aqui
+
+      console.log("Usuário autenticado:", user.email, "Tipo:", tipo);
+
+      if (tipo === "admin") {
+        router.push("/admin");
+      } else if (tipo === "paciente") {
+        router.push("/cliente");
+      } else {
+        throw new Error("Tipo de usuário não reconhecido.");
+      }
+
     } catch (error: any) {
       console.error("Erro ao fazer login:", error);
       if (error.code === 'auth/user-not-found') {
@@ -49,7 +68,7 @@ export default function LoginPage() {
       } else if (error.code === 'auth/wrong-password') {
         setErro("Senha incorreta.");
       } else {
-        setErro("Erro na autenticação. Tente novamente.");
+        setErro(error.message || "Erro na autenticação. Tente novamente.");
       }
     } finally {
       setLoading(false);
@@ -81,20 +100,40 @@ export default function LoginPage() {
         )}
 
         <form onSubmit={handleSubmit}>
-          <input
-            type="text"
-            placeholder="Usuário"
-            value={email}
-            onChange={handleInputChange(setEmail)}
-            style={inputEstilo()}
-          />
-          <input
-            type="password"
-            placeholder="Senha"
-            value={senha}
-            onChange={handleInputChange(setSenha)}
-            style={inputEstilo()}
-          />
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
+            <div style={{ height: "100%" }}>
+              <img 
+                src="/usuario_logo.png" 
+                alt="Usuário" 
+                style={{ width: "60px", height: "60px", objectFit: "cover", marginRight: "10px" }} 
+              />
+            </div>
+            <input
+              type="text"
+              placeholder="Usuário"
+              value={email}
+              onChange={handleInputChange(setEmail)}
+              style={{ ...inputEstilo(), flex: 1, height: "60px" }}
+            />
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
+            <div style={{ height: "100%" }}>
+              <img 
+                src="/cadeado.png" 
+                alt="Senha" 
+                style={{ width: "60px", height: "60px", objectFit: "cover", marginRight: "10px" }} 
+              />
+            </div>
+            <input
+              type="password"
+              placeholder="Senha"
+              value={senha}
+              onChange={handleInputChange(setSenha)}
+              style={{ ...inputEstilo(), flex: 1, height: "60px" }}
+            />
+          </div>
+
           <button
             type="submit"
             style={botaoEstilo()}
@@ -109,7 +148,6 @@ export default function LoginPage() {
     </main>
   );
 
-  // --- Estilos ---
   function estiloMain(): React.CSSProperties {
     return {
       minHeight: "100vh",
@@ -189,7 +227,8 @@ export default function LoginPage() {
       fontWeight: "600",
       fontSize: "1rem",
       cursor: "pointer",
-      transition: "background-color 0.3s ease"
+      transition: "background-color 0.3s ease, box-shadow 0.3s ease",
+      boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.15)"
     };
   }
 }

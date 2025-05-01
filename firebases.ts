@@ -3,6 +3,7 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
+import { getFunctions } from "firebase/functions"; // ✅ IMPORTAR FUNÇÕES
 
 // Configurações do Firebase usando variáveis de ambiente
 const firebaseConfig = {
@@ -20,6 +21,7 @@ const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 // Inicializa serviços
 const db = getFirestore(app);
 const auth = getAuth(app);
+const functions = getFunctions(app); // ✅ INICIALIZA FUNÇÕES
 
 // Exporta serviços para uso no projeto
-export { app, db, auth };
+export { app, db, auth, functions }; // ✅ EXPORTA TUDO

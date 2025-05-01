@@ -1,11 +1,22 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from "next/navigation";  // <= Agora está certo aqui!
+import { useRouter } from "next/navigation";
 import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
+import { usePacienteAuth } from "../hooks/usePacienteAuth";
+import { signOut } from "firebase/auth";
+import { auth } from "@/firebases";
 
 export default function ClientePage() {
-  const router = useRouter();  // <= Correção feita aqui!
+  const router = useRouter();
+  const { autenticado, carregando } = usePacienteAuth();
+
+  if (carregando) return <p>Carregando...</p>;
+  if (!autenticado && !carregando) {
+    return <p style={{ padding: 20 }}>Você não tem permissão para acessar esta página.</p>;
+  }
+
+  // ... restante do código permanece exatamente como você enviou
 
   const [diasSemReclamar, setDiasSemReclamar] = useState(0);
   const [mostrarPopup, setMostrarPopup] = useState(false);
@@ -34,20 +45,23 @@ export default function ClientePage() {
     setDataPesagem('');
   };
 
+  const fazerLogout = async () => {
+    await signOut(auth);
+    router.push('/login');
+  };
+
   return (
     <main style={estiloMain}>
       <div style={estiloCard}>
-        {/* Botão de Logout */}
         <div style={estiloLogoutContainer}>
           <img
             src="/desligar.png"
             alt="Logout"
             style={{ width: "30px", height: "30px", cursor: "pointer" }}
-            onClick={() => router.push('/login')}
+            onClick={fazerLogout}
           />
         </div>
 
-        {/* Imagem de Fundo */}
         <img src="/fundo_cliente.png" alt="Fundo Cliente" style={estiloImagemFundo} />
 
         <div style={{ position: 'relative', zIndex: 1 }}>
@@ -66,12 +80,10 @@ export default function ClientePage() {
             Parabéns! Você já está emagrecendo há 35 dias 🎉 e concluiu 5/18 ciclos 👊
           </div>
 
-          {/* Botões */}
           <button style={estiloBotao} onClick={() => setMostrarPopup(true)}>📝 Registrar Novo Peso</button>
           <button style={estiloBotao} onClick={() => setMostrarHistorico(true)}>📅 Histórico de Peso</button>
           <button style={estiloBotao} onClick={() => setMostrarMaterial(true)}>📚 Material Didático</button>
 
-          {/* Checkbox Desafio */}
           <div style={{ marginTop: 10, marginBottom: 10 }}>
             <label style={{ fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer', color: '#000' }}>
               <input type="checkbox" checked={mostrarDesafio} onChange={() => setMostrarDesafio(!mostrarDesafio)} style={{ marginRight: 8 }} />
@@ -79,7 +91,6 @@ export default function ClientePage() {
             </label>
           </div>
 
-          {/* Desafio */}
           {mostrarDesafio && (
             <div style={estiloDesafioArea}>
               <button style={estiloBotaoDesafio}>{diasSemReclamar} dias sem reclamar</button>
@@ -88,7 +99,6 @@ export default function ClientePage() {
             </div>
           )}
 
-          {/* Popups */}
           {mostrarPopup && popupRegistrarPeso()}
           {mostrarHistorico && popupHistoricoPesagens()}
           {mostrarMaterial && popupMaterialDidatico()}
@@ -97,7 +107,6 @@ export default function ClientePage() {
     </main>
   );
 
-  // --- Funções Popup ---
   function popupRegistrarPeso() {
     return (
       <div style={estiloPopupFundo}>
@@ -161,7 +170,7 @@ export default function ClientePage() {
   }
 }
 
-// --- Estilos ---
+// --- Estilos (iguais ao original, mantidos) ---
 const estiloMain: React.CSSProperties = { minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '20px', backgroundColor: '#f7f7f7' };
 const estiloCard: React.CSSProperties = { backgroundColor: 'white', padding: '30px 20px', borderRadius: '16px', boxShadow: '0px 6px 18px rgba(0,0,0,0.1)', width: '100%', maxWidth: '400px', textAlign: 'center', position: 'relative', overflow: 'hidden' };
 const estiloImagemFundo: React.CSSProperties = { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.2, zIndex: 0 };
@@ -180,4 +189,3 @@ const estiloPopupCaixa: React.CSSProperties = { backgroundColor: 'white', paddin
 const estiloInput: React.CSSProperties = { padding: '10px', width: '80%', marginBottom: '10px', fontSize: '1rem', border: '1px solid #ccc', borderRadius: '6px' };
 const estiloBotaoOk: React.CSSProperties = { marginRight: '10px', backgroundColor: '#55A350', color: 'white', fontWeight: 'bold', border: 'none', padding: '10px 20px', borderRadius: '6px', cursor: 'pointer', fontSize: '1rem' };
 const estiloBotaoCancelar: React.CSSProperties = { backgroundColor: '#ccc', color: 'black', fontWeight: 'bold', border: 'none', padding: '10px 20px', borderRadius: '6px', cursor: 'pointer', fontSize: '1rem' };
-

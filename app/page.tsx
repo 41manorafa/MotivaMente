@@ -55,28 +55,27 @@ export default function Home() {
           Sua jornada de transformação pessoal começa agora.
         </p>
 
-        <Link href="/login" style={{ textDecoration: 'none' }}>
-          <button
-            style={{
-              padding: "15px 30px",
-              fontSize: "1rem",
-              backgroundColor: "#F58220",
-              color: "white",
-              border: "none",
-              borderRadius: "8px",
-              cursor: "pointer",
-              width: "100%",
-              maxWidth: "250px",
-              marginTop: "20px",
-              transition: "background-color 0.3s ease"
-            }}
-            onMouseOver={e => (e.currentTarget.style.backgroundColor = "#e67300")}
-            onMouseOut={e => (e.currentTarget.style.backgroundColor = "#F58220")}
+        <div style={{
+          display: "flex",
+          justifyContent: "space-around",
+          alignItems: "center",
+          marginTop: "20px",
+          gap: "10px"
+        }}>
+          <Link href="/login">
+            <img src="/login.png" alt="Login" style={{ width: "80px", cursor: "pointer" }} />
+          </Link>
+          <Link href="/loja">
+            <img src="/loja.png" alt="Loja" style={{ width: "80px", cursor: "pointer" }} />
+          </Link>
+          <a
+            href="https://api.whatsapp.com/send/?phone=5531982243411&text=Olá%2C+gostaria+de+saber+mais+sobre+o+Motivamente&type=phone_number&app_absent=0"
+            target="_blank"
+            rel="noopener noreferrer"
           >
-            Começar Agora
-          </button>
-        </Link>
-
+            <img src="/contato.png" alt="Contato" style={{ width: "80px", cursor: "pointer" }} />
+          </a>
+        </div>
       </div>
     </main>
   );
