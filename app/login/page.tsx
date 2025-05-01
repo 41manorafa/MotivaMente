@@ -6,6 +6,9 @@ import Image from "next/image";
 import { auth, db } from "@/firebases";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
+import firebase from 'firebase/app'; // ✅ Importe firebase para acessar a versão
+
+console.log("Firebase version:", firebase.SDK_VERSION); // ✅ Log da versão do Firebase
 
 export default function LoginPage() {
   const [email, setEmail] = useState<string>('');
@@ -13,6 +16,9 @@ export default function LoginPage() {
   const [erro, setErro] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [showLogo, setShowLogo] = useState<boolean>(false);
+
+  console.log("auth object:", auth); // ✅ Log do objeto auth
+  console.log("db object:", db);     // ✅ Log do objeto db
 
   const router = useRouter();
 
