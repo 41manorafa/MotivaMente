@@ -47,18 +47,23 @@ export default function LoginPage() {
       const userCredential = await signInWithEmailAndPassword(auth, usuario, senhaDigitada);
       const user = userCredential.user;
 
-      console.log("Usuário autenticado:", user.email, "UID:", user.uid); // ✅ Log do UID
+      console.log("Usuário (após login):", user); // ✅ Log completo do objeto user
+      console.log("UID do usuário (após login):", user?.uid); // ✅ Log do UID
+
+      console.log("db object:", db); // ✅ Verifique se 'db' ainda é um objeto válido
 
       const docRef = doc(db, "usuarios", user.uid);
-      console.log("Referência do documento:", docRef.path); // ✅ Log do caminho do documento
+      console.log("Referência do documento:", docRef.path);
+      console.log("Tentando obter documento..."); // ✅ Log antes da chamada getDoc
       const docSnap = await getDoc(docRef);
+      console.log("Documento obtido:", docSnap); // ✅ Log do resultado de getDoc
 
       if (!docSnap.exists()) {
         throw new Error("Usuário não encontrado no banco de dados.");
       }
 
       const dados = docSnap.data();
-      const tipo = dados?.tipo?.toLowerCase(); // ✅ Corrigido aqui
+      const tipo = dados?.tipo?.toLowerCase();
 
       console.log("Tipo de usuário:", tipo);
 
@@ -126,7 +131,7 @@ export default function LoginPage() {
             />
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: "15px" }}>
             <div style={{ height: "100%" }}>
               <img
                 src="/cadeado.png"
