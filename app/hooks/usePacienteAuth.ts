@@ -15,7 +15,7 @@ export function usePacienteAuth() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (usuario) => {
       if (!usuario) {
-        console.warn("Nenhum usuário logado. Redirecionando...");
+        console.warn("[usePacienteAuth] Nenhum usuário logado. Redirecionando...");
         setCarregando(false);
         router.push("/login");
         return;
@@ -23,25 +23,30 @@ export function usePacienteAuth() {
 
       try {
         const docRef = doc(db, "usuarios", usuario.uid);
+        console.log("[usePacienteAuth] UID do usuário:", usuario.uid);
+        console.log("[usePacienteAuth] Tentando obter documento...");
         const docSnap = await getDoc(docRef);
+        console.log("[usePacienteAuth] Documento obtido:", docSnap);
+        console.log("[usePacienteAuth] Documento existe:", docSnap.exists());
 
         if (!docSnap.exists()) {
-          console.error("Documento do usuário não encontrado no Firestore.");
+          console.error("[usePacienteAuth] Documento do usuário não encontrado no Firestore.");
           router.push("/login");
           return;
         }
 
         const tipo = docSnap.data()?.tipo;
+        console.log("[usePacienteAuth] Tipo do usuário:", tipo);
 
         if (tipo === "paciente") {
           setAutenticado(true);
         } else {
-          console.warn(`Usuário logado não é paciente (tipo: ${tipo}).`);
+          console.warn(`[usePacienteAuth] Usuário logado não é paciente (tipo: ${tipo}).`);
           router.push("/login");
         }
 
       } catch (erro) {
-        console.error("Erro ao buscar tipo de usuário:", erro);
+        console.error("[usePacienteAuth] Erro ao buscar tipo de usuário:", erro);
         router.push("/login");
       } finally {
         setCarregando(false);
